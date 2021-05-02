@@ -9,4 +9,4 @@ LINK TO YOUR PUBLISHED SITE
 
 ## Part 2:
 
-https://github.com/nbudhraj/github-actions-for-ci/issues
+https://github.com/nbudhraj/github-actions-for-ci/issues/7
