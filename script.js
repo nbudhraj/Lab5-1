@@ -1,16 +1,113 @@
 // script.js
 
 const img = new Image(); // used to load image from <input> and draw to canvas
+const canvas = document.getElementById("user-image");
+const ctx = canvas.getContext('2d');
+const imageIn = document.getElementById("image-input");
+const generate = document.getElementById("generate-meme");
+const toptext = document.getElementById("text-top");
+const bottomtext = document.getElementById("text-bottom");
+const resetbutton = document.querySelector("[type='reset']");
+const readbutton = document.querySelector("[type='button']");
+
+var synth = window.speechSynthesis;
+var voiceSelect = document.getElementById('voice-selection');
+var voices = [];
+var volume = 1;
+
+function populateVoiceList() {
+  voiceSelect.disabled = false;
+  voices = synth.getVoices();
+  for(var i = 0; i < voices.length ; i++) {
+    var option = document.createElement('option');
+    option.textContent = voices[i].name + ' (' + voices[i].lang + ')';
+
+    if(voices[i].default) {
+      option.textContent += ' -- DEFAULT';
+    }
+
+    option.setAttribute('data-lang', voices[i].lang);
+    option.setAttribute('data-name', voices[i].name);
+    voiceSelect.appendChild(option);
+  }
+}
+
+populateVoiceList();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = populateVoiceList;
+}
+
+
 
 // Fires whenever the img object loads a new image (such as with img.src =)
 img.addEventListener('load', () => {
   // TODO
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  var dimensions = getDimmensions(canvas.width, canvas.height, img.width, img.height);
+  ctx.drawImage(img, dimensions.startX, dimensions.startY, dimensions.width, dimensions.height);
 
-  // Some helpful tips:
-  // - Fill the whole Canvas with black first to add borders on non-square images, then draw on top
-  // - Clear the form when a new image is selected
-  // - If you draw the image to canvas here, it will update as soon as a new image is selected
 });
+
+imageIn.addEventListener('change', () => {
+  var file = imageIn.files[0]
+  img.src = URL.createObjectURL(file);
+  var name = file.name;
+  img.alt = name;
+});
+
+
+generate.addEventListener('submit', () => {
+  resetbutton.disabled = false;
+  readbutton.disabled = false;
+  ctx.font = "30px Arial";
+  ctx.fillText(toptext.value, 10, 50);
+  ctx.fillText(bottomtext.value, 10, canvas.height-10);
+  event.preventDefault();
+});
+
+resetbutton.addEventListener('click', () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  resetbutton.disabled = true;
+  readbutton.disabled = true;
+});
+
+readbutton.addEventListener('click', () => {
+  event.preventDefault();
+  var utterThis = new SpeechSynthesisUtterance(toptext.value + " " + bottomtext.value);
+  var selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
+  for(var i = 0; i < voices.length ; i++) {
+    if(voices[i].name === selectedOption) {
+      utterThis.voice = voices[i];
+    }
+  }
+  utterThis.volume = volume;
+  synth.speak(utterThis);
+  
+});
+
+const slider = document.querySelector("[type='range']");
+slider.addEventListener('input', () => {
+  var vol = slider.valueAsNumber; 
+  var icon = document.querySelector("[alt='Volume Level 3']");
+  if(vol == 0){
+    volume = 0; 
+    icon.src = "icons/volume-level-0.svg";
+  } else if (vol > 0 && vol <=33){
+    volume = 0.33;
+    icon.src = "icons/volume-level-1.svg";
+  } else if (vol > 33 && vol <= 66){
+    volume = 0.66;
+    icon.src = "icons/volume-level-2.svg";
+  } else {
+    volume = 1;
+    icon.src = "icons/volume-level-3.svg";
+  }
+});
+
+
+
 
 /**
  * Takes in the dimensions of the canvas and the new image, then calculates the new
