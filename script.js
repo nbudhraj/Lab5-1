@@ -9,6 +9,8 @@ const toptext = document.getElementById("text-top");
 const bottomtext = document.getElementById("text-bottom");
 const resetbutton = document.querySelector("[type='reset']");
 const readbutton = document.querySelector("[type='button']");
+const genbutton = document.querySelector("[type='submit']");
+
 
 var synth = window.speechSynthesis;
 var voiceSelect = document.getElementById('voice-selection');
@@ -17,6 +19,7 @@ var volume = 1;
 
 function populateVoiceList() {
   voiceSelect.disabled = false;
+  voiceSelect.textContent  = "";
   voices = synth.getVoices();
   for(var i = 0; i < voices.length ; i++) {
     var option = document.createElement('option');
@@ -61,9 +64,15 @@ imageIn.addEventListener('change', () => {
 generate.addEventListener('submit', () => {
   resetbutton.disabled = false;
   readbutton.disabled = false;
+  genbutton.disabled = true;
   ctx.font = "30px Arial";
-  ctx.fillText(toptext.value, 10, 50);
-  ctx.fillText(bottomtext.value, 10, canvas.height-10);
+  ctx.fillStyle = "white";
+
+  var topTextWidth = ctx.measureText(toptext.value).width;
+  var bottomTextWidth = ctx.measureText(bottomtext.value).width;
+
+  ctx.fillText(toptext.value, (canvas.width/2)-(topTextWidth/2), 50);
+  ctx.fillText(bottomtext.value, (canvas.width/2)-(bottomTextWidth/2), canvas.height-10);
   event.preventDefault();
 });
 
@@ -71,6 +80,7 @@ resetbutton.addEventListener('click', () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   resetbutton.disabled = true;
   readbutton.disabled = true;
+  genbutton.disabled = false;
 });
 
 readbutton.addEventListener('click', () => {
