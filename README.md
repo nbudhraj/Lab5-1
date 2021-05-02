@@ -5,7 +5,7 @@ Navika Budhraja
 
 ## Part 1:
 
-LINK TO YOUR PUBLISHED SITE
+https://nbudhraj.github.io/Lab5-1/
 
 ## Part 2:
 
